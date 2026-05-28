@@ -1996,6 +1996,15 @@ apply. The other padding is applied first and may affect how many grid cells
 actually exist, and this is applied last in order to balance the padding
 given a certain viewport size and grid cell size.
 
+Valid values are:
+
+* `false` - No balancing is applied.
+* `true` - Balance the padding, but cap the top padding to avoid
+  excessive space above the first row. Any excess is shifted to the
+  bottom.
+* `equal` - Balance the padding equally on all sides without any
+  top-padding cap. (Available since: 1.4.0)
+
 ## `window-padding-color`
 
 The color of the padding area of the window. Valid values are:
@@ -2461,8 +2470,12 @@ the system clipboard.
 The value `clipboard` will always copy text to the selection clipboard
 as well as the system clipboard.
 
-Middle-click paste will always use the selection clipboard. Middle-click
-paste is always enabled even if this is `false`.
+Middle-click primary paste (see `middle-click-action`) is enabled by
+default even if this is `false`. The clipboard it pastes from follows
+this setting: with `true` (or `false`) it reads from the selection
+clipboard (falling back to the system clipboard on platforms without a
+selection clipboard); with `clipboard` it reads from the system
+clipboard.
 
 The default value is true on Linux and macOS.
 
@@ -2479,6 +2492,17 @@ Valid values:
   * `ignore` - Do nothing, ignore the right-click.
 
 The default value is `context-menu`.
+
+## `middle-click-action`
+
+The action to take when the user middle-clicks on the terminal surface.
+
+Valid values:
+  * `primary-paste` - Paste from the selection (or system) clipboard per
+     `copy-on-select`.
+  * `ignore` - Do nothing, ignore the middle click.
+
+The default value is `primary-paste`.
 
 ## `click-repeat-interval`
 
@@ -2759,7 +2783,15 @@ Valid values are:
 The default value is `main` because this is the recommended screen
 by the operating system.
 
-Only implemented on macOS.
+On macOS, `macos-menu-bar` uses the screen containing the menu bar.
+On Linux/Wayland, `macos-menu-bar` is treated as equivalent to `main`.
+
+<Note>
+ On Linux, there is no universal concept of a "primary" monitor.
+Ghostty uses the compositor-reported primary output when available and
+falls back to the first monitor reported by GDK if no primary output can
+be resolved.
+</Note>
 
 ## `quick-terminal-animation-duration`
 
@@ -2933,9 +2965,16 @@ command-palette-entry = title:Focus Split: Right,description:"Focus the split to
 command-palette-entry = title:"Ghostty",description:"Add a little Ghostty to your terminal.",action:"text:\xf0\x9f\x91\xbb"
 ```
 
+There are some additional special values that can be specified for
+command-palette-entry:
+
+  * `command-palette-entry=clear` will clear all command entries. Warning: this
+    removes ALL entries up to this point, including the default
+    entries. Available since: 1.4.0
+
 By default, the command palette is preloaded with most actions that might
 be useful in an interactive setting yet do not have easily accessible or
-memorizable shortcuts. The default entries can be cleared by setting this
+memorizable shortcuts. The default entries can be restored by setting this
 setting to an empty value:
 
 ```ini
@@ -3862,37 +3901,3 @@ on macOS currently, since Linux builds are distributed via package
 managers that are not centrally controlled by Ghostty.
 
 Checking or downloading an update does not send any information to
-the project beyond standard network information mandated by the
-underlying protocols. To put it another way: Ghostty doesn't explicitly
-add any tracking to the update process. The update process works by
-downloading information about the latest version and comparing it
-client-side to the current version.
-
-Valid values are:
-
- * `off` - Disable auto-updates.
- * `check` - Check for updates and notify the user if an update is
-   available, but do not automatically download or install the update.
- * `download` - Check for updates, automatically download the update,
-   notify the user, but do not automatically install the update.
-
-If unset, we defer to Sparkle's default behavior, which respects the
-preference stored in the standard user defaults (`defaults(1)`).
-
-Changing this value at runtime works after a small delay.
-
-## `auto-update-channel`
-
-The release channel to use for auto-updates.
-
-The default value of this matches the release channel of the currently
-running Ghostty version. If you download a pre-release version of Ghostty
-then this will be set to `tip` and you will receive pre-release updates.
-If you download a stable version of Ghostty then this will be set to
-`stable` and you will receive stable updates.
-
-Valid values are:
-
- * `stable` - Stable, tagged releases such as "1.0.0".
- * `tip` - Pre-release versions generated from each commit to the
-   main branch. This is the version that was in use during private
