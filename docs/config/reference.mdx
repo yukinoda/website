@@ -1081,6 +1081,42 @@ Specified as either hex (`#RRGGBB` or `RRGGBB`) or a named X11 color.
 
 Available since: 1.1.0
 
+## `focused-split-border-color`
+
+The color of the border drawn around the focused split. When unset
+(the default), no border is rendered — this feature is opt-in.
+To enable, set any color.
+
+This is independent of `unfocused-split-opacity`; both can be used
+together (e.g. opacity = 1.0 with a visible focus border).
+
+Currently only honored on macOS. On other platforms this key is
+accepted but has no effect.
+
+Specified as either hex (`#RRGGBB` or `RRGGBB`) or a named X11 color.
+
+Available since: 1.3.0
+
+## `focused-split-border-width`
+
+Width of the focused-split border. The value is in points, meaning it
+will be scaled appropriately for screen DPI — consistent with
+`window-padding-x`/`window-padding-y`. Has no effect if
+`focused-split-border-color` is unset. Clamped to 0–16.
+
+Currently only honored on macOS.
+
+Available since: 1.3.0
+
+## `focused-split-border-opacity`
+
+Opacity of the focused-split border, 0.0–1.0. Has no effect if
+`focused-split-border-color` is unset. Clamped to 0.0–1.0.
+
+Currently only honored on macOS.
+
+Available since: 1.3.0
+
 ## `split-preserve-zoom`
 
 Control when Ghostty preserves a zoomed split. Under normal circumstances,
@@ -3901,3 +3937,28 @@ on macOS currently, since Linux builds are distributed via package
 managers that are not centrally controlled by Ghostty.
 
 Checking or downloading an update does not send any information to
+the project beyond standard network information mandated by the
+underlying protocols. To put it another way: Ghostty doesn't explicitly
+add any tracking to the update process. The update process works by
+downloading information about the latest version and comparing it
+client-side to the current version.
+
+Valid values are:
+
+ * `off` - Disable auto-updates.
+ * `check` - Check for updates and notify the user if an update is
+   available, but do not automatically download or install the update.
+ * `download` - Check for updates, automatically download the update,
+   notify the user, but do not automatically install the update.
+
+If unset, we defer to Sparkle's default behavior, which respects the
+preference stored in the standard user defaults (`defaults(1)`).
+
+Changing this value at runtime works after a small delay.
+
+## `auto-update-channel`
+
+The release channel to use for auto-updates.
+
+The default value of this matches the release channel of the currently
+running Ghostty version. If you download a pre-release version of Ghostty
